@@ -1,0 +1,120 @@
+#cloud-config
+# vim: syntax=yaml
+
+user: cloud
+ssh_pwauth: True
+chpasswd:
+    list: |
+        root:contrail123
+        cloud:contrail123
+    expire: False
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: false
+
+packages:
+  - git
+  - tig
+  - subversion
+  - mc
+  - vim
+  - traceroute
+  - htop
+  - mosh
+  - tmux
+  - screen
+  - jq
+  - crudini
+  - make
+  - libpq-dev  # rally
+
+final_message: "!!! Devstack booted !!! (cloudinit runs in $UPTIME seconds)"
+
+output: {all: '| tee -a /var/log/cloud-init-output.log'}
+
+runcmd:
+  - [ sh, -xc, "su cloud -c 'cd && git clone https://github.com/rasta-rocket/dotfiles.git'" ]
+  - [ sh, -xc, "su cloud -c 'cd && cd dotfiles && ./pkg_install.sh'" ]
+    # - [ sh, -xc, "su cloud -c 'cd && git clone https://github.com/nojhan/liquidprompt.git'" ]
+    # - [ sh, -xc, "su cloud -c 'echo source ~/liquidprompt/liquidprompt >> /home/cloud/.bashrc'" ]
+  - [ sh, -xc, "su cloud -c 'git config --global http.sslVerify false'"]
+  - [ sh, -xc, "su cloud -c 'bash /opt/build.sh'" ]
+
+write_files:
+-   content: |
+        #!/usr/bin/env bash
+        tmux new-session -s opencontrail -n shell -d
+        tmux new-window -t opencontrail:1 -n contrail
+        tmux new-window -t opencontrail:2 -n stack
+        tmux send-keys -t opencontrail:2 'cd ~/ && git clone https://github.com/openstack-dev/devstack && git clone https://github.com/Juniper/contrail-installer.git' C-m
+    path: /opt/build.sh
+    permissions: 0775
+-   content: |
+     [[local|localrc]]
+        SERVICE_TOKEN=azertytoken
+        ADMIN_PASSWORD=contrail123
+        MYSQL_PASSWORD=stackdb
+        RABBIT_PASSWORD=stackqueue
+        SERVICE_PASSWORD=$ADMIN_PASSWORD
+        LOGFILE=$DEST/logs/stack.sh.log
+        LOGDAYS=2
+        SWIFT_HASH=66a3d6b56c1f479c8b4e70ab5c2000f5
+        SWIFT_REPLICAS=1
+        SWIFT_DATA_DIR=$DEST/data
+
+        #Enable heat services
+        enable_service h-eng h-api h-api-cfn h-api-cw
+
+        # Download Fedora image
+        IMAGE_URLS="https://download.fedoraproject.org/pub/fedora/linux/releases/24/CloudImages/x86_64/images/Fedora-Cloud-Base-24-1.2.x86_64.qcow2"
+
+        enable_plugin contrail https://github.com/zioc/contrail-devstack-plugin.git
+        CONTRAIL_REPO=https://github.com/eonpatapon/contrail-vnc.git
+        CONTRAIL_BRANCH=R2.21-cloudwatt 
+
+        enable_plugin networking-bgpvpn https://github.com/openstack/networking-bgpvpn.git stable/mitaka
+        NETWORKING_BGPVPN_DRIVER="BGPVPN:OpenContrail:networking_bgpvpn.neutron.services.service_drivers.opencontrail.opencontrail.OpenContrailBGPVPNDriver:default"
+
+        SCONS_JOBS=$(lscpu -p | grep -cve '^#')
+     [[post-config|$NEUTRON_CONF]]
+        [DEFAULT]
+        #service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
+        [quotas]
+        quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDriver
+     [[post-config|$NOVA_CONF]]
+        [libvirt]
+        vif_driver = nova_contrail_vif.contrailvif.VRouterVIFDriver
+        virt_type = qemu   
+    path: /opt/local.conf
+    permissions: 0664
+-   content: |
+        diff --git a/packages.xml b/packages.xml
+        index 8307c2d..0e4bccf 100644
+        --- a/packages.xml
+        +++ b/packages.xml
+        @@ -207,10 +207,10 @@
+           </package>
+           <package>
+             <name>Pugi XML 1.2</name>
+        -    <url>https://pugixml.googlecode.com/files/pugixml-1.2.tar.gz</url>
+        +    <url>http://github.com/zeux/pugixml/releases/download/v1.2/pugixml-1.2.zip</url>
+             <unpack-directory>pugixml</unpack-directory>
+        -    <format>tgz</format>
+        -    <md5>477f4a7d75af0383f52ee6622b3f6035</md5>
+        +    <format>zip</format>
+        +    <md5>e68abfb90f99f37d702d18dbc1df536d</md5>
+           </package>
+           <package>
+             <name>Apache Thrift 0.8</name>
+        @@ -311,7 +311,7 @@
+           </package>
+           <package>
+             <name>JSON parser/generator for C++</name>
+        -    <url>http://rapidjson.googlecode.com/files/rapidjson-0.11.zip</url>
+        +    <url>https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rapidjson/rapidjson-0.11.zip</url>
+             <format>zip</format>
+             <md5>96a4b1b57ece8bc6a807ceb14ccaaf94</md5>
+             <patches>
+    path: /opt/third_party.patch
+    permissions: 0664

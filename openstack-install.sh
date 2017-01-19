@@ -5,6 +5,14 @@ trap '[ "$?" -ne 100 ] || exit 100' ERR
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+NOVA_VER=$(neutron --version 2>&1 | cut -d. -f1)
+NEUTRON_VER=$(neutron --version 2>&1 | cut -d. -f1)
+if [[ $NOVA_VER -lt 4 || $NEUTRON_VER -lt 4 ]]
+then
+    echo "Upgrade your openstack client"
+    exit 1
+fi
+
 test -z "$1" -o -z "$2" && echo "Usage: bash $0 cloudinit.yml hostname" && exit 1
 
 source $DIR/openstack.rc || (echo Configure openstack.rc first && exit 100)
