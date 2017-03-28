@@ -17,7 +17,8 @@ packages:
   - git
   - tig
   - subversion
-  - mc
+  - ranger
+  - bpython
   - vim
   - traceroute
   - htop
@@ -87,34 +88,4 @@ write_files:
         vif_driver = nova_contrail_vif.contrailvif.VRouterVIFDriver
         virt_type = qemu   
     path: /opt/local.conf
-    permissions: 0664
--   content: |
-        diff --git a/packages.xml b/packages.xml
-        index 8307c2d..0e4bccf 100644
-        --- a/packages.xml
-        +++ b/packages.xml
-        @@ -207,10 +207,10 @@
-           </package>
-           <package>
-             <name>Pugi XML 1.2</name>
-        -    <url>https://pugixml.googlecode.com/files/pugixml-1.2.tar.gz</url>
-        +    <url>http://github.com/zeux/pugixml/releases/download/v1.2/pugixml-1.2.zip</url>
-             <unpack-directory>pugixml</unpack-directory>
-        -    <format>tgz</format>
-        -    <md5>477f4a7d75af0383f52ee6622b3f6035</md5>
-        +    <format>zip</format>
-        +    <md5>e68abfb90f99f37d702d18dbc1df536d</md5>
-           </package>
-           <package>
-             <name>Apache Thrift 0.8</name>
-        @@ -311,7 +311,7 @@
-           </package>
-           <package>
-             <name>JSON parser/generator for C++</name>
-        -    <url>http://rapidjson.googlecode.com/files/rapidjson-0.11.zip</url>
-        +    <url>https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rapidjson/rapidjson-0.11.zip</url>
-             <format>zip</format>
-             <md5>96a4b1b57ece8bc6a807ceb14ccaaf94</md5>
-             <patches>
-    path: /opt/third_party.patch
     permissions: 0664
