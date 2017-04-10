@@ -64,6 +64,9 @@ write_files:
         SWIFT_REPLICAS=1
         SWIFT_DATA_DIR=$DEST/data
 
+        REQUIREMENTS_REPO="https://github.com/rasta-rocket/requirements.git"
+        REQUIREMENTS_BRANCH="cloudwatt-stable/mitaka"
+
         #Enable heat services
         enable_service h-eng h-api h-api-cfn h-api-cw
 
