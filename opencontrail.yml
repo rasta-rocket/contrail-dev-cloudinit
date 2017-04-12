@@ -18,6 +18,7 @@ packages:
   - tig
   - subversion
   - ranger
+  - oping
   - bpython
   - vim
   - traceroute
@@ -74,8 +75,9 @@ write_files:
         IMAGE_URLS="https://download.fedoraproject.org/pub/fedora/linux/releases/24/CloudImages/x86_64/images/Fedora-Cloud-Base-24-1.2.x86_64.qcow2"
 
         enable_plugin contrail https://github.com/zioc/contrail-devstack-plugin.git
-        CONTRAIL_REPO=https://github.com/eonpatapon/contrail-vnc.git
-        CONTRAIL_BRANCH=R2.21-cloudwatt 
+        CONTRAIL_REPO=https://github.com/Juniper/contrail-vnc.git
+        CONTRAIL_BRANCH=master
+        Q_PLUGIN_CLASS=neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.NeutronPluginContrailCoreV2
 
         enable_plugin networking-bgpvpn https://github.com/openstack/networking-bgpvpn.git stable/mitaka
         NETWORKING_BGPVPN_DRIVER="BGPVPN:OpenContrail:networking_bgpvpn.neutron.services.service_drivers.opencontrail.opencontrail.OpenContrailBGPVPNDriver:default"
