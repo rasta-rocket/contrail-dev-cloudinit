@@ -37,7 +37,7 @@ output: {all: '| tee -a /var/log/cloud-init-output.log'}
 
 runcmd:
   - [ sh, -xc, "su cloud -c 'cd && git clone https://github.com/rasta-rocket/dotfiles.git'" ]
-  - [ sh, -xc, "su cloud -c 'cd && cd dotfiles && ./pkg_install.sh'" ]
+  - [ sh, -xc, "su cloud -c 'cd && cd dotfiles && make install'" ]
     # - [ sh, -xc, "su cloud -c 'cd && git clone https://github.com/nojhan/liquidprompt.git'" ]
     # - [ sh, -xc, "su cloud -c 'echo source ~/liquidprompt/liquidprompt >> /home/cloud/.bashrc'" ]
   - [ sh, -xc, "su cloud -c 'git config --global http.sslVerify false'"]
@@ -74,7 +74,7 @@ write_files:
         # Download Fedora image
         IMAGE_URLS="https://download.fedoraproject.org/pub/fedora/linux/releases/24/CloudImages/x86_64/images/Fedora-Cloud-Base-24-1.2.x86_64.qcow2"
 
-        enable_plugin contrail https://github.com/zioc/contrail-devstack-plugin.git
+        enable_plugin contrail https://github.com/rasta-rocket/contrail-devstack-plugin.git fix/awk-options
         CONTRAIL_REPO=https://github.com/Juniper/contrail-vnc.git
         CONTRAIL_BRANCH=master
         Q_PLUGIN_CLASS=neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.NeutronPluginContrailCoreV2
@@ -82,7 +82,7 @@ write_files:
         enable_plugin networking-bgpvpn https://github.com/openstack/networking-bgpvpn.git stable/mitaka
         NETWORKING_BGPVPN_DRIVER="BGPVPN:OpenContrail:networking_bgpvpn.neutron.services.service_drivers.opencontrail.opencontrail.OpenContrailBGPVPNDriver:default"
 
-        SCONS_JOBS=$(lscpu -p | grep -cve '^#')
+        SCONS_JOBS=1 #$(lscpu -p | grep -cve '^#')
      [[post-config|$NEUTRON_CONF]]
         [DEFAULT]
         #service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
